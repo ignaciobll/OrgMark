@@ -60,18 +60,17 @@
             inherit src xcodeBaseDir;
             sdk = simulatorSdk;
             target = "OrgMark";
-            scheme = "OrgMark";
             nativeBuildInputs = [ xcodeWrapper ];
             __noChroot = true;
 
-            xcodeFlags = "-project OrgMarkiPad/OrgMark.xcodeproj -derivedDataPath \"$TMPDIR/DerivedData\" -clonedSourcePackagesDirPath \"$TMPDIR/SourcePackages\"";
+            xcodeFlags = "-project OrgMarkiPad/OrgMark.xcodeproj -clonedSourcePackagesDirPath \"$TMPDIR/SourcePackages\"";
 
             preBuild = ''
-              mkdir -p "$TMPDIR/DerivedData" "$TMPDIR/SourcePackages"
+              mkdir -p "$TMPDIR/SourcePackages"
 
               xcodebuild -resolvePackageDependencies \
                 -project OrgMarkiPad/OrgMark.xcodeproj \
-                -scheme OrgMark \
+                -target OrgMark \
                 -clonedSourcePackagesDirPath "$TMPDIR/SourcePackages"
             '';
 
