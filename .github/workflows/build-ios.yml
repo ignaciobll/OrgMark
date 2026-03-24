@@ -1,0 +1,51 @@
+name: build-ios
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  orgmark-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+
+      - name: Show selected Xcode
+        shell: bash
+        run: |
+          xcode-select -p
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Export Xcode base directory
+        shell: bash
+        run: |
+          developer_dir="$(xcode-select -p)"
+          xcode_base_dir="$(dirname "$(dirname "$developer_dir")")"
+          echo "XCODE_BASE_DIR=$xcode_base_dir" >> "$GITHUB_ENV"
+
+      - name: Build OrgMark iOS simulator app
+        shell: bash
+        run: |
+          nix --extra-experimental-features 'nix-command flakes' \
+            build .#orgmark-ios \
+            --impure \
+            --option sandbox relaxed \
+            --print-build-logs
+
+      - name: Upload build output
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orgmark-ios-simulator
+          path: result
+          if-no-files-found: error

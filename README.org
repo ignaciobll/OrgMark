@@ -12,6 +12,35 @@ With OrgMark, you can use iPad to draw figures and insert them into Org files. Y
 3. Install the Org Mark app to your iPad (by whatever means).
 4. Put orgmark.el under your ~load-path~ and require it.
 
+* Nix build draft
+This repo now includes a draft =flake.nix= for building the iPad app target
+with =nixpkgs.xcodeenv=. The actual build still has to run on macOS because it
+uses the host Xcode installation.
+
+Build the simulator app locally on macOS:
+
+#+begin_example
+$ nix build .#orgmark-ios --impure --option sandbox relaxed
+#+end_example
+
+If Xcode is not installed at =/Applications/Xcode.app=, override it:
+
+#+begin_example
+$ XCODE_BASE_DIR=/Applications/Xcode-beta.app \
+    nix build .#orgmark-ios --impure --option sandbox relaxed
+#+end_example
+
+If you need a specific simulator SDK name, override that too:
+
+#+begin_example
+$ IOS_SIMULATOR_SDK=iphonesimulator17.5 \
+    nix build .#orgmark-ios --impure --option sandbox relaxed
+#+end_example
+
+There is also a draft GitHub Actions workflow in
+=.github/workflows/build-ios.yml= that uses a macOS runner to build the app for
+free on public forks.
+
 * Usage
 From Org mode: =M-x orgmark-insert=, or =M-x orgmark-edit=.
 
