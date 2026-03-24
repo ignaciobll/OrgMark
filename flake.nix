@@ -66,7 +66,19 @@
             xcodeFlags = "-project OrgMarkiPad/OrgMark.xcodeproj -clonedSourcePackagesDirPath \"$TMPDIR/SourcePackages\"";
 
             preBuild = ''
-              mkdir -p "$TMPDIR/SourcePackages"
+              export HOME="$TMPDIR/home"
+              export CFFIXED_USER_HOME="$HOME"
+              export XDG_CACHE_HOME="$TMPDIR/cache"
+              export SIMULATOR_DEVICE_SET_PATH="$HOME/Library/Developer/CoreSimulator/Devices"
+
+              mkdir -p \
+                "$TMPDIR/SourcePackages" \
+                "$XDG_CACHE_HOME" \
+                "$HOME/Library/Caches/org.swift.swiftpm/manifests" \
+                "$HOME/Library/Caches/com.apple.dt.Xcode/Downloads" \
+                "$HOME/Library/Caches/com.apple.dt.xcodebuild" \
+                "$HOME/Library/Developer/Xcode/DerivedData" \
+                "$HOME/Library/Developer/CoreSimulator/Devices"
 
               xcodebuild -resolvePackageDependencies \
                 -project OrgMarkiPad/OrgMark.xcodeproj \
