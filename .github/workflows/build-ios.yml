@@ -33,37 +33,12 @@ jobs:
           xcode_base_dir="$(dirname "$(dirname "$developer_dir")")"
           echo "XCODE_BASE_DIR=$xcode_base_dir" >> "$GITHUB_ENV"
 
-      - name: Prepare writable nixbld Xcode directories
-        shell: bash
-        run: |
-          sudo mkdir -p \
-            /var/empty/Library/Caches/org.swift.swiftpm/manifests \
-            /var/empty/Library/Caches/com.apple.dt.Xcode/Downloads \
-            /var/empty/Library/Caches/com.apple.dt.xcodebuild \
-            /var/empty/Library/Developer/Xcode/DerivedData \
-            /var/empty/Library/Developer/CoreSimulator/Devices
-
-          sudo chmod -R 0777 /var/empty/Library
-
-      - name: Verify nixbld write access paths
-        shell: bash
-        run: |
-          ls -ld /var/empty /var/empty/Library
-          ls -ld /var/empty/Library/Caches \
-            /var/empty/Library/Caches/org.swift.swiftpm \
-            /var/empty/Library/Caches/org.swift.swiftpm/manifests \
-            /var/empty/Library/Caches/com.apple.dt.Xcode/Downloads \
-            /var/empty/Library/Caches/com.apple.dt.xcodebuild \
-            /var/empty/Library/Developer/Xcode/DerivedData \
-            /var/empty/Library/Developer/CoreSimulator/Devices
-
-      - name: Build OrgMark iOS simulator app
+      - name: Build OrgMark iOS simulator app via nix run
         shell: bash
         run: |
           nix --extra-experimental-features 'nix-command flakes' \
-            build .#orgmark-ios \
+            run .#build-orgmark-ios \
             --impure \
-            --option sandbox false \
             --print-build-logs
 
       - name: Upload build output
@@ -71,5 +46,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: orgmark-ios-simulator
-          path: result
+          path: build/ios-simulator
           if-no-files-found: error

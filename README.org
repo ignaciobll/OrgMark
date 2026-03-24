@@ -17,24 +17,34 @@ This repo now includes a draft =flake.nix= for building the iPad app target
 with =nixpkgs.xcodeenv=. The actual build still has to run on macOS because it
 uses the host Xcode installation.
 
-Build the simulator app locally on macOS:
+Build the simulator app locally on macOS through the CI-friendly wrapper:
 
 #+begin_example
-$ nix build .#orgmark-ios --impure --option sandbox relaxed
+$ nix run .#build-orgmark-ios --impure
+#+end_example
+
+This runs =xcodebuild= directly as your normal macOS user from a Nix-provided
+wrapper environment. That avoids the nested sandbox issues we hit when trying
+to build the app fully inside a Nix derivation on GitHub's macOS runners.
+
+There is also an experimental derivation-based build:
+
+#+begin_example
+$ nix build .#orgmark-ios --impure --option sandbox false
 #+end_example
 
 If Xcode is not installed at =/Applications/Xcode.app=, override it:
 
 #+begin_example
 $ XCODE_BASE_DIR=/Applications/Xcode-beta.app \
-    nix build .#orgmark-ios --impure --option sandbox relaxed
+    nix run .#build-orgmark-ios --impure
 #+end_example
 
 If you need a specific simulator SDK name, override that too:
 
 #+begin_example
 $ IOS_SIMULATOR_SDK=iphonesimulator17.5 \
-    nix build .#orgmark-ios --impure --option sandbox relaxed
+    nix run .#build-orgmark-ios --impure
 #+end_example
 
 There is also a draft GitHub Actions workflow in
