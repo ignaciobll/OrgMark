@@ -63,7 +63,7 @@ jobs:
           nix --extra-experimental-features 'nix-command flakes' \
             build .#orgmark-ios \
             --impure \
-            --option sandbox relaxed \
+            --option sandbox false \
             --print-build-logs
 
       - name: Upload build output
