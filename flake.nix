@@ -16,6 +16,13 @@
           system:
           let
             pkgs = import nixpkgs { inherit system; };
+            composeXcodeWrapper = import "${nixpkgs.outPath}/pkgs/development/mobile/xcodeenv/compose-xcodewrapper.nix" {
+              inherit (pkgs) lib stdenv writeShellScriptBin;
+            };
+            buildApp = import "${nixpkgs.outPath}/pkgs/development/mobile/xcodeenv/build-app.nix" {
+              inherit (pkgs) lib stdenv;
+              inherit composeXcodeWrapper;
+            };
             envOr =
               name: default:
               let
@@ -29,6 +36,8 @@
           f {
             inherit
               pkgs
+              buildApp
+              composeXcodeWrapper
               simulatorSdk
               src
               system
@@ -39,14 +48,14 @@
     in
     {
       packages = forDarwinSystems (
-        { pkgs, simulatorSdk, src, xcodeBaseDir, ... }:
+        { buildApp, composeXcodeWrapper, pkgs, simulatorSdk, src, xcodeBaseDir, ... }:
         let
-          xcodeWrapper = pkgs.xcodeenv.composeXcodeWrapper { inherit xcodeBaseDir; };
+          xcodeWrapper = composeXcodeWrapper { inherit xcodeBaseDir; };
         in
         rec {
           default = orgmark-ios;
 
-          orgmark-ios = pkgs.xcodeenv.buildApp {
+          orgmark-ios = buildApp {
             name = "orgmark-ios";
             inherit src xcodeBaseDir;
             sdk = simulatorSdk;
@@ -75,9 +84,9 @@
       );
 
       devShells = forDarwinSystems (
-        { pkgs, xcodeBaseDir, ... }:
+        { pkgs, composeXcodeWrapper, xcodeBaseDir, ... }:
         let
-          xcodeWrapper = pkgs.xcodeenv.composeXcodeWrapper { inherit xcodeBaseDir; };
+          xcodeWrapper = composeXcodeWrapper { inherit xcodeBaseDir; };
         in
         {
           default = pkgs.mkShell {
